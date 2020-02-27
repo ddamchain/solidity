@@ -508,7 +508,7 @@ set<VariableDeclaration::Location> VariableDeclaration::allowedDataLocations() c
 
 	if (!hasReferenceOrMappingType() || isStateVariable() || isEventParameter())
 		return set<Location>{ Location::Unspecified };
-	else if (isStateVariable() && isConstant())
+	else if (isStateVariable() && (isConstant() || immutable()))
 		return set<Location>{ Location::Memory };
 	else if (isExternalCallableParameter())
 	{
