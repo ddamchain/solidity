@@ -144,6 +144,43 @@ void MemoryItem::setToZero(SourceLocation const&, bool _removeReference) const
 	m_context << Instruction::POP;
 }
 
+
+ImmutableItem::ImmutableItem(CompilerContext& _compilerContext, VariableDeclaration const& _variable):
+	LValue(_compilerContext, _variable.annotation().type), m_variable(_variable)
+{
+	solAssert(_variable.immutable(), "");
+}
+
+void ImmutableItem::retrieveValue(SourceLocation const&, bool) const
+{
+	solUnimplementedAssert(m_dataType->isValueType(), "");
+	// TODO: assert that not in creation context?
+	m_context.appendImmutableVariable(m_variable.annotation().contract->fullyQualifiedName() + "." + m_variable.name());
+	// TODO: or maybe allow creation context, but do the following instead? Can we even distinguish creation from runtime context in here?
+/*  m_context << _compilerContext.immutableMemoryOffset(_variable);
+	CompilerUtils(m_context).loadFromMemoryDynamic(*m_dataType, false, true, false);
+ */
+}
+
+void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, bool _move) const
+{
+	CompilerUtils utils(m_context);
+	solUnimplementedAssert(m_dataType->isValueType(), "");
+	solAssert(_sourceType.isValueType(), "");
+	utils.convertType(_sourceType, *m_dataType, true);
+	if (!_move)
+		m_context << Instruction::DUP1; // TODO: handle multi-slot types, if any?
+	m_context << m_context.immutableMemoryOffset(m_variable);
+	m_context << Instruction::SWAP1;
+	utils.storeInMemoryDynamic(*m_dataType, false); // TODO: static version should suffice.
+	m_context << Instruction::POP;
+}
+
+void ImmutableItem::setToZero(SourceLocation const&, bool) const
+{
+	solAssert(false, "Attempted to set immutable variable to zero.");
+}
+
 StorageItem::StorageItem(CompilerContext& _compilerContext, VariableDeclaration const& _declaration):
 	StorageItem(_compilerContext, *_declaration.annotation().type)
 {

@@ -44,7 +44,8 @@ enum AssemblyItemType {
 	Tag,
 	PushData,
 	PushLibraryAddress, ///< Push a currently unknown address of another (library) contract.
-	PushDeployTimeAddress ///< Push an address to be filled at deploy time. Should not be touched by the optimizer.
+	PushDeployTimeAddress, ///< Push an address to be filled at deploy time. Should not be touched by the optimizer.
+	PushImmutableVariable ///< Push the currently unknown value of an immutable variable. The actual value will be filled in by the constructor.
 };
 
 class Assembly;

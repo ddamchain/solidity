@@ -333,6 +333,13 @@ AssemblyItem Assembly::newPushLibraryAddress(string const& _identifier)
 	return AssemblyItem{PushLibraryAddress, h};
 }
 
+AssemblyItem Assembly::newPushImmutableVariable(string const& _identifier)
+{
+	h256 h(util::keccak256(_identifier));
+	m_immutableVariables[h] = _identifier;
+	return AssemblyItem{PushImmutableVariable, h};
+}
+
 Assembly& Assembly::optimise(bool _enable, EVMVersion _evmVersion, bool _isCreation, size_t _runs)
 {
 	OptimiserSettings settings;
@@ -597,6 +604,11 @@ LinkerObject const& Assembly::assemble() const
 			ret.bytecode.push_back(uint8_t(Instruction::PUSH20));
 			ret.linkReferences[ret.bytecode.size()] = m_libraries.at(i.data());
 			ret.bytecode.resize(ret.bytecode.size() + 20);
+			break;
+		case PushImmutableVariable:
+			ret.bytecode.push_back(uint8_t(Instruction::PUSH32));
+			ret.immutableReferences[m_immutableVariables.at(i.data())].push_back(ret.bytecode.size());
+			ret.bytecode.resize(ret.bytecode.size() + 32);
 			break;
 		case PushDeployTimeAddress:
 			ret.bytecode.push_back(uint8_t(Instruction::PUSH20));

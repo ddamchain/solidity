@@ -80,6 +80,8 @@ unsigned AssemblyItem::bytesRequired(unsigned _addressLength) const
 	case PushLibraryAddress:
 	case PushDeployTimeAddress:
 		return 1 + 20;
+	case PushImmutableVariable:
+		return 1 + 32;
 	default:
 		break;
 	}
@@ -108,6 +110,7 @@ int AssemblyItem::returnValues() const
 	case PushSubSize:
 	case PushProgramSize:
 	case PushLibraryAddress:
+	case PushImmutableVariable:
 	case PushDeployTimeAddress:
 		return 1;
 	case Tag:
