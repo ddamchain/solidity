@@ -88,6 +88,30 @@ size_t CompilerContext::immutableMemoryOffset(VariableDeclaration const& _variab
 	return m_immutableVariables.at(&_variable);
 }
 
+vector<string> CompilerContext::immutableVariableSlotNames(VariableDeclaration const& _variable)
+{
+	string baseName =
+		_variable.annotation().contract->fullyQualifiedName() +
+		"." +
+		_variable.name() +
+		" (" +
+		to_string(_variable.id()) +
+		")"
+	;
+	if (_variable.annotation().type->sizeOnStack() <= 1)
+		return {baseName};
+	vector<string> names;
+	auto collectSlotNames = [&](string const& _baseName, TypePointer type, auto const& _recurse) -> void {
+		for (auto const& [slot, type]: type->stackItems())
+			if (type)
+				_recurse(_baseName + " " + slot, type, _recurse);
+			else
+				names.emplace_back(_baseName);
+	};
+	collectSlotNames(baseName, _variable.annotation().type, collectSlotNames);
+	return names;
+}
+
 void CompilerContext::startFunction(Declaration const& _function)
 {
 	m_functionCompilationQueue.startFunction(_function);

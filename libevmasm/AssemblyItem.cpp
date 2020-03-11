@@ -80,9 +80,9 @@ unsigned AssemblyItem::bytesRequired(unsigned _addressLength) const
 	case PushLibraryAddress:
 	case PushDeployTimeAddress:
 		return 1 + 20;
-	case PushImmutableVariable:
+	case PushImmutable:
 		return 1 + 32;
-	case AssignImmutableVariable:
+	case AssignImmutable:
 		return -1u; // No upper bound possible, so maximum valus. TODO: check if this can cause overflows anywhere.
 	default:
 		break;
@@ -94,7 +94,7 @@ int AssemblyItem::arguments() const
 {
 	if (type() == Operation)
 		return instructionInfo(instruction()).args;
-	else if (type() == AssignImmutableVariable)
+	else if (type() == AssignImmutable)
 		return 1;
 	else
 		return 0;
@@ -114,7 +114,7 @@ int AssemblyItem::returnValues() const
 	case PushSubSize:
 	case PushProgramSize:
 	case PushLibraryAddress:
-	case PushImmutableVariable:
+	case PushImmutable:
 	case PushDeployTimeAddress:
 		return 1;
 	case Tag:
@@ -142,8 +142,8 @@ bool AssemblyItem::canBeFunctional() const
 	case PushProgramSize:
 	case PushLibraryAddress:
 	case PushDeployTimeAddress:
-	case PushImmutableVariable:
-	case AssignImmutableVariable:
+	case PushImmutable:
+	case AssignImmutable:
 		return true;
 	case Tag:
 		return false;
@@ -219,10 +219,10 @@ string AssemblyItem::toAssemblyText() const
 	case PushDeployTimeAddress:
 		text = string("deployTimeAddress()");
 		break;
-	case PushImmutableVariable:
+	case PushImmutable:
 		text = string("immutable(\"") + toHex(util::toCompactBigEndian(data(), 1), util::HexPrefix::Add) + "\")";
 		break;
-	case AssignImmutableVariable:
+	case AssignImmutable:
 		text = string("assignImmutable(\"") + toHex(util::toCompactBigEndian(data(), 1), util::HexPrefix::Add) + "\")";
 		break;
 	case UndefinedItem:
@@ -290,10 +290,10 @@ ostream& solidity::evmasm::operator<<(ostream& _out, AssemblyItem const& _item)
 	case PushDeployTimeAddress:
 		_out << " PushDeployTimeAddress";
 		break;
-	case PushImmutableVariable:
+	case PushImmutable:
 		_out << " PushImmutable";
 		break;
-	case AssignImmutableVariable:
+	case AssignImmutable:
 		_out << " AssignImmutable";
 		break;
 	case UndefinedItem:

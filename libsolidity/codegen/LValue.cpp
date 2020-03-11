@@ -154,21 +154,12 @@ ImmutableItem::ImmutableItem(CompilerContext& _compilerContext, VariableDeclarat
 void ImmutableItem::retrieveValue(SourceLocation const&, bool) const
 {
 	solUnimplementedAssert(m_dataType->isValueType(), "");
-	// TODO: assert that not in creation context?
-	for (size_t i = 0; i < m_dataType->sizeOnStack(); ++i)
-		m_context.appendImmutableVariable(
-			m_variable.annotation().contract->fullyQualifiedName() +
-			"." +
-			m_variable.name() +
-			" " +
-			to_string(m_variable.id()) +
-			" " +
-			to_string(i)
-		);
-	// TODO: or maybe allow creation context, but do the following instead? Can we even distinguish creation from runtime context in here?
-/*  m_context << _compilerContext.immutableMemoryOffset(_variable);
-	CompilerUtils(m_context).loadFromMemoryDynamic(*m_dataType, false, true, false);
- */
+	if (m_context.runtimeContext())
+		// TODO: if we end up disallowing this, we should assert accordingly instead.
+		CompilerUtils(m_context).loadFromMemory(m_context.immutableMemoryOffset(m_variable), *m_variable.annotation().type);
+	else
+		for (auto&& slotName: m_context.immutableVariableSlotNames(m_variable))
+			m_context.appendImmutable(slotName);
 }
 
 void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, bool _move) const

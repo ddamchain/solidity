@@ -283,12 +283,12 @@ Json::Value Assembly::assemblyJSON(map<string, unsigned> const& _sourceIndices) 
 				createJsonValue("PUSHDEPLOYADDRESS", sourceIndex, i.location().start, i.location().end)
 			);
 			break;
-		case PushImmutableVariable:
+		case PushImmutable:
 			collection.append(
 				createJsonValue("PUSHIMMUTABLE", sourceIndex, i.location().start, i.location().end, m_immutables.at(h256(i.data())))
 			);
 			break;
-		case AssignImmutableVariable:
+		case AssignImmutable:
 			collection.append(
 				createJsonValue("ASSIGNIMMUTABLE", sourceIndex, i.location().start, i.location().end, m_immutables.at(h256(i.data())))
 			);
@@ -343,17 +343,17 @@ AssemblyItem Assembly::newPushLibraryAddress(string const& _identifier)
 	return AssemblyItem{PushLibraryAddress, h};
 }
 
-AssemblyItem Assembly::newPushImmutableVariable(string const& _identifier)
+AssemblyItem Assembly::newPushImmutable(string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
 	m_immutables[h] = _identifier;
-	return AssemblyItem{PushImmutableVariable, h};
+	return AssemblyItem{PushImmutable, h};
 }
 
-AssemblyItem Assembly::newImmutableVariableAssignment(string const& _identifier)
+AssemblyItem Assembly::newImmutableAssignment(string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
-	return AssemblyItem{AssignImmutableVariable, h};
+	return AssemblyItem{AssignImmutable, h};
 }
 
 Assembly& Assembly::optimise(bool _enable, EVMVersion _evmVersion, bool _isCreation, size_t _runs)
@@ -625,12 +625,12 @@ LinkerObject const& Assembly::assemble() const
 			ret.linkReferences[ret.bytecode.size()] = m_libraries.at(i.data());
 			ret.bytecode.resize(ret.bytecode.size() + 20);
 			break;
-		case PushImmutableVariable:
+		case PushImmutable:
 			ret.bytecode.push_back(uint8_t(Instruction::PUSH32));
 			ret.immutableOccurrences[i.data()].emplace_back(ret.bytecode.size());
 			ret.bytecode.resize(ret.bytecode.size() + 32);
 			break;
-		case AssignImmutableVariable:
+		case AssignImmutable:
 			for (auto const& offset: immutableOccurrences[i.data()])
 			{
 				ret.bytecode.push_back(uint8_t(Instruction::DUP1));

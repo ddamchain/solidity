@@ -91,7 +91,7 @@ KnownState::StoreOperation KnownState::feedItem(AssemblyItem const& _item, bool 
 	{
 		// can be ignored
 	}
-	else if (_item.type() == AssignImmutableVariable)
+	else if (_item.type() == AssignImmutable)
 	{
 		resetMemory(); // TODO: is this needed?
 		// TODO: while this seems to work, it might be dangerous.

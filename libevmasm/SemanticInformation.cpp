@@ -45,7 +45,7 @@ bool SemanticInformation::breaksCSEAnalysisBlock(AssemblyItem const& _item, bool
 	case PushProgramSize:
 	case PushData:
 	case PushLibraryAddress:
-	case PushImmutableVariable:
+	case PushImmutable:
 		return false;
 	case Operation:
 	{

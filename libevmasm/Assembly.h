@@ -54,8 +54,8 @@ public:
 	Assembly& sub(size_t _sub) { return *m_subs.at(_sub); }
 	AssemblyItem newPushSubSize(u256 const& _subId) { return AssemblyItem(PushSubSize, _subId); }
 	AssemblyItem newPushLibraryAddress(std::string const& _identifier);
-	AssemblyItem newPushImmutableVariable(std::string const& _identifier);
-	AssemblyItem newImmutableVariableAssignment(std::string const& _identifier);
+	AssemblyItem newPushImmutable(std::string const& _identifier);
+	AssemblyItem newImmutableAssignment(std::string const& _identifier);
 
 	AssemblyItem const& append(AssemblyItem const& _i);
 	AssemblyItem const& append(bytes const& _data) { return append(newData(_data)); }
@@ -66,8 +66,8 @@ public:
 	/// after compilation and CODESIZE is not an option.
 	void appendProgramSize() { append(AssemblyItem(PushProgramSize)); }
 	void appendLibraryAddress(std::string const& _identifier) { append(newPushLibraryAddress(_identifier)); }
-	void appendImmutableVariable(std::string const& _identifier) { append(newPushImmutableVariable(_identifier)); }
-	void appendImmutableVariableAssignment(std::string const& _identifier) { append(newImmutableVariableAssignment(_identifier)); }
+	void appendImmutable(std::string const& _identifier) { append(newPushImmutable(_identifier)); }
+	void appendImmutableAssignment(std::string const& _identifier) { append(newImmutableAssignment(_identifier)); }
 
 	AssemblyItem appendJump() { auto ret = append(newPushTag()); append(Instruction::JUMP); return ret; }
 	AssemblyItem appendJumpI() { auto ret = append(newPushTag()); append(Instruction::JUMPI); return ret; }

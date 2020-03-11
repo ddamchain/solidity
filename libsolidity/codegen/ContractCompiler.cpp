@@ -198,16 +198,11 @@ size_t ContractCompiler::packIntoContractCreator(ContractDefinition const& _cont
 	m_context << u256(0) << Instruction::CODECOPY;
 	// Assign immutable values from stack in reversed order.
 	for (auto const& immutable: immutables | boost::adaptors::reversed)
-		for (size_t i = 0; i < immutable->annotation().type->sizeOnStack(); ++i)
-			m_context.appendImmutableVariableAssignment(
-				immutable->annotation().contract->fullyQualifiedName() +
-				"." +
-				immutable->name() +
-				" " +
-				to_string(immutable->id()) +
-				" " +
-				to_string(immutable->annotation().type->sizeOnStack() - i - 1)
-			);
+	{
+		auto slotNames = m_context.immutableVariableSlotNames(*immutable);
+		for (auto&& slotName: slotNames | boost::adaptors::reversed)
+			m_context.appendImmutableAssignment(slotName);
+	}
 	if (!immutables.empty())
 		m_context.pushSubroutineSize(m_context.runtimeSub());
 	m_context << u256(0) << Instruction::RETURN;

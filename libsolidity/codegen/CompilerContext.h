@@ -84,6 +84,8 @@ public:
 
 	/// @returns the reserved memory for storing the value of the immutable @a _variable during contract creation.
 	size_t immutableMemoryOffset(VariableDeclaration const& _variable) const;
+	/// @returns a list of slot names referring to the stack slots of an immutable variable.
+	static std::vector<std::string> immutableVariableSlotNames(VariableDeclaration const& _variable);
 
 	size_t const& reservedMemory() const { return m_reservedMemory; }
 
@@ -225,9 +227,9 @@ public:
 	/// Appends the address (virtual, will be filled in by linker) of a library.
 	void appendLibraryAddress(std::string const& _identifier) { m_asm->appendLibraryAddress(_identifier); }
 	/// Appends an immutable variable. The value will be filled in by the constructor.
-	void appendImmutableVariable(std::string const& _identifier) { m_asm->appendImmutableVariable(_identifier); }
+	void appendImmutable(std::string const& _identifier) { m_asm->appendImmutable(_identifier); }
 	/// Appends an assignment to an immutable variable. Only valid in creation code.
-	void appendImmutableVariableAssignment(std::string const& _identifier) { m_asm->appendImmutableVariableAssignment(_identifier); }
+	void appendImmutableAssignment(std::string const& _identifier) { m_asm->appendImmutableAssignment(_identifier); }
 	/// Appends a zero-address that can be replaced by something else at deploy time (if the
 	/// position in bytecode is known).
 	void appendDeployTimeAddress() { m_asm->append(evmasm::PushDeployTimeAddress); }
