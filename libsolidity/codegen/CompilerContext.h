@@ -83,9 +83,9 @@ public:
 	void addImmutable(VariableDeclaration const& _declaration);
 
 	/// @returns the reserved memory for storing the value of the immutable @a _variable during contract creation.
-	u256 immutableMemoryOffset(VariableDeclaration const& _variable) const;
+	size_t immutableMemoryOffset(VariableDeclaration const& _variable) const;
 
-	u256 const& reservedMemory() const { return m_reservedMemory; }
+	size_t const& reservedMemory() const { return m_reservedMemory; }
 
 	void addVariable(VariableDeclaration const& _declaration, unsigned _offsetToCurrent = 0);
 	void removeVariable(Declaration const& _declaration);
@@ -367,9 +367,9 @@ private:
 	/// Storage offsets of state variables
 	std::map<Declaration const*, std::pair<u256, unsigned>> m_stateVariables;
 	/// Memory offsets reserved for the values of immutable variables during contract creation.
-	std::map<VariableDeclaration const*, u256> m_immutableVariables;
+	std::map<VariableDeclaration const*, size_t> m_immutableVariables;
 	/// Total amount of reserved memory. Reserved memory is used to store immutable variables during contract creation.
-	u256 m_reservedMemory = 0;
+	size_t m_reservedMemory = 0;
 	/// Offsets of local variables on the stack (relative to stack base).
 	/// This needs to be a stack because if a modifier contains a local variable and this
 	/// modifier is applied twice, the position of the variable needs to be restored

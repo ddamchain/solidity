@@ -74,12 +74,13 @@ void CompilerContext::addStateVariable(
 void CompilerContext::addImmutable(VariableDeclaration const& _variable)
 {
 	solAssert(_variable.immutable(), "Attempted to register a non-immutable variable as immutable.");
+	solUnimplementedAssert(_variable.annotation().type->isValueType(), "Only immutable variables of value type are supported.");
 	solAssert(m_runtimeContext, "Attempted to register an immutable variable for runtime code generation.");
 	m_immutableVariables[&_variable] = m_reservedMemory;
 	m_reservedMemory += _variable.annotation().type->memoryHeadSize();
 }
 
-u256 CompilerContext::immutableMemoryOffset(VariableDeclaration const& _variable) const
+size_t CompilerContext::immutableMemoryOffset(VariableDeclaration const& _variable) const
 {
 	solAssert(_variable.immutable(), "Attempted to register a non-immutable variable as immutable.");
 	solAssert(m_runtimeContext, "Attempted to register an immutable variable for runtime code generation.");

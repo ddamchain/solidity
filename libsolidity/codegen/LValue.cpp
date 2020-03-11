@@ -155,7 +155,16 @@ void ImmutableItem::retrieveValue(SourceLocation const&, bool) const
 {
 	solUnimplementedAssert(m_dataType->isValueType(), "");
 	// TODO: assert that not in creation context?
-	m_context.appendImmutableVariable(m_variable.annotation().contract->fullyQualifiedName() + "." + m_variable.name());
+	for (size_t i = 0; i < m_dataType->sizeOnStack(); ++i)
+		m_context.appendImmutableVariable(
+			m_variable.annotation().contract->fullyQualifiedName() +
+			"." +
+			m_variable.name() +
+			" " +
+			to_string(m_variable.id()) +
+			" " +
+			to_string(i)
+		);
 	// TODO: or maybe allow creation context, but do the following instead? Can we even distinguish creation from runtime context in here?
 /*  m_context << _compilerContext.immutableMemoryOffset(_variable);
 	CompilerUtils(m_context).loadFromMemoryDynamic(*m_dataType, false, true, false);
@@ -167,12 +176,14 @@ void ImmutableItem::storeValue(Type const& _sourceType, SourceLocation const&, b
 	CompilerUtils utils(m_context);
 	solUnimplementedAssert(m_dataType->isValueType(), "");
 	solAssert(_sourceType.isValueType(), "");
+
 	utils.convertType(_sourceType, *m_dataType, true);
-	if (!_move)
-		m_context << Instruction::DUP1; // TODO: handle multi-slot types, if any?
 	m_context << m_context.immutableMemoryOffset(m_variable);
-	m_context << Instruction::SWAP1;
-	utils.storeInMemoryDynamic(*m_dataType, false); // TODO: static version should suffice.
+	if (_move)
+		utils.moveIntoStack(m_dataType->sizeOnStack());
+	else
+		utils.copyToStackTop(m_dataType->sizeOnStack() + 1, m_dataType->sizeOnStack());
+	utils.storeInMemoryDynamic(*m_dataType, false);
 	m_context << Instruction::POP;
 }
 
