@@ -82,9 +82,8 @@ void CompilerContext::addImmutable(VariableDeclaration const& _variable)
 
 size_t CompilerContext::immutableMemoryOffset(VariableDeclaration const& _variable) const
 {
-	solAssert(_variable.immutable(), "Attempted to register a non-immutable variable as immutable.");
-	solAssert(m_runtimeContext, "Attempted to register an immutable variable for runtime code generation.");
-	solAssert(m_immutableVariables.count(&_variable), "Unknown immutable.");
+	solAssert(m_immutableVariables.count(&_variable), "Memory offset of unknown immutable queried.");
+	solAssert(m_runtimeContext, "Attempted to fetch the memory offset of an immutable variable during runtime code generation.");
 	return m_immutableVariables.at(&_variable);
 }
 
