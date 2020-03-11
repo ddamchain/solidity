@@ -142,6 +142,8 @@ bool AssemblyItem::canBeFunctional() const
 	case PushProgramSize:
 	case PushLibraryAddress:
 	case PushDeployTimeAddress:
+	case PushImmutableVariable:
+	case AssignImmutableVariable:
 		return true;
 	case Tag:
 		return false;
@@ -217,6 +219,12 @@ string AssemblyItem::toAssemblyText() const
 	case PushDeployTimeAddress:
 		text = string("deployTimeAddress()");
 		break;
+	case PushImmutableVariable:
+		text = string("immutable(\"") + toHex(util::toCompactBigEndian(data(), 1), util::HexPrefix::Add) + "\")";
+		break;
+	case AssignImmutableVariable:
+		text = string("assignImmutable(\"") + toHex(util::toCompactBigEndian(data(), 1), util::HexPrefix::Add) + "\")";
+		break;
 	case UndefinedItem:
 		assertThrow(false, AssemblyException, "Invalid assembly item.");
 		break;
@@ -281,6 +289,12 @@ ostream& solidity::evmasm::operator<<(ostream& _out, AssemblyItem const& _item)
 	}
 	case PushDeployTimeAddress:
 		_out << " PushDeployTimeAddress";
+		break;
+	case PushImmutableVariable:
+		_out << " PushImmutable";
+		break;
+	case AssignImmutableVariable:
+		_out << " AssignImmutable";
 		break;
 	case UndefinedItem:
 		_out << " ???";

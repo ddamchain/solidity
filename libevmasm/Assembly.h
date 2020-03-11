@@ -170,6 +170,7 @@ protected:
 	std::vector<std::shared_ptr<Assembly>> m_subs;
 	std::map<util::h256, std::string> m_strings;
 	std::map<util::h256, std::string> m_libraries; ///< Identifiers of libraries to be linked.
+	std::map<util::h256, std::string> m_immutables; ///< Identifiers of immutables.
 
 	mutable LinkerObject m_assembledObject;
 	mutable std::vector<size_t> m_tagPositionsInBytecode;

@@ -283,6 +283,16 @@ Json::Value Assembly::assemblyJSON(map<string, unsigned> const& _sourceIndices) 
 				createJsonValue("PUSHDEPLOYADDRESS", sourceIndex, i.location().start, i.location().end)
 			);
 			break;
+		case PushImmutableVariable:
+			collection.append(
+				createJsonValue("PUSHIMMUTABLE", sourceIndex, i.location().start, i.location().end, m_immutables.at(h256(i.data())))
+			);
+			break;
+		case AssignImmutableVariable:
+			collection.append(
+				createJsonValue("ASSIGNIMMUTABLE", sourceIndex, i.location().start, i.location().end, m_immutables.at(h256(i.data())))
+			);
+			break;
 		case Tag:
 			collection.append(
 				createJsonValue("tag", sourceIndex, i.location().start, i.location().end, toString(i.data())));
@@ -336,6 +346,7 @@ AssemblyItem Assembly::newPushLibraryAddress(string const& _identifier)
 AssemblyItem Assembly::newPushImmutableVariable(string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
+	m_immutables[h] = _identifier;
 	return AssemblyItem{PushImmutableVariable, h};
 }
 
