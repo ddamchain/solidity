@@ -518,20 +518,19 @@ LinkerObject const& Assembly::assemble() const
 	// Otherwise ensure the object is actually clear.
 	assertThrow(m_assembledObject.linkReferences.empty(), AssemblyException, "Unexpected link references.");
 
-	map<u256, vector<size_t>> immutableOccurrences;
+	LinkerObject& ret = m_assembledObject;
 
 	size_t subTagSize = 1;
 	for (auto const& sub: m_subs)
 	{
 		auto const& linkerObject = sub->assemble();
 		for (auto const& [hash, occurrences]: linkerObject.immutableOccurrences)
-			immutableOccurrences[hash] += std::move(occurrences);
+			ret.immutableOccurrences[hash] += std::move(occurrences);
 		for (size_t tagPos: sub->m_tagPositionsInBytecode)
 			if (tagPos != size_t(-1) && tagPos > subTagSize)
 				subTagSize = tagPos;
 	}
 
-	LinkerObject& ret = m_assembledObject;
 
 	size_t bytesRequiredForCode = bytesRequired(subTagSize);
 	m_tagPositionsInBytecode = vector<size_t>(m_usedTags, -1);
@@ -631,7 +630,7 @@ LinkerObject const& Assembly::assemble() const
 			ret.bytecode.resize(ret.bytecode.size() + 32);
 			break;
 		case AssignImmutable:
-			for (auto const& offset: immutableOccurrences[i.data()])
+			for (auto const& offset: ret.immutableOccurrences[i.data()])
 			{
 				ret.bytecode.push_back(uint8_t(Instruction::DUP1));
 				// TODO: should we make use of the constant optimizer methods for pushing the offsets?
