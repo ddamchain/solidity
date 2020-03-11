@@ -55,6 +55,7 @@ public:
 	AssemblyItem newPushSubSize(u256 const& _subId) { return AssemblyItem(PushSubSize, _subId); }
 	AssemblyItem newPushLibraryAddress(std::string const& _identifier);
 	AssemblyItem newPushImmutableVariable(std::string const& _identifier);
+	AssemblyItem newImmutableVariableAssignment(std::string const& _identifier);
 
 	AssemblyItem const& append(AssemblyItem const& _i);
 	AssemblyItem const& append(bytes const& _data) { return append(newData(_data)); }
@@ -66,6 +67,7 @@ public:
 	void appendProgramSize() { append(AssemblyItem(PushProgramSize)); }
 	void appendLibraryAddress(std::string const& _identifier) { append(newPushLibraryAddress(_identifier)); }
 	void appendImmutableVariable(std::string const& _identifier) { append(newPushImmutableVariable(_identifier)); }
+	void appendImmutableVariableAssignment(std::string const& _identifier) { append(newImmutableVariableAssignment(_identifier)); }
 
 	AssemblyItem appendJump() { auto ret = append(newPushTag()); append(Instruction::JUMP); return ret; }
 	AssemblyItem appendJumpI() { auto ret = append(newPushTag()); append(Instruction::JUMPI); return ret; }
@@ -168,7 +170,6 @@ protected:
 	std::vector<std::shared_ptr<Assembly>> m_subs;
 	std::map<util::h256, std::string> m_strings;
 	std::map<util::h256, std::string> m_libraries; ///< Identifiers of libraries to be linked.
-	std::map<util::h256, std::string> m_immutableVariables; ///< Identifiers of immutable variables to be filled in by the constructor.
 
 	mutable LinkerObject m_assembledObject;
 	mutable std::vector<size_t> m_tagPositionsInBytecode;

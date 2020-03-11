@@ -91,6 +91,12 @@ KnownState::StoreOperation KnownState::feedItem(AssemblyItem const& _item, bool 
 	{
 		// can be ignored
 	}
+	else if (_item.type() == AssignImmutableVariable)
+	{
+		resetMemory(); // TODO: is this needed?
+		// TODO: while this seems to work, it might be dangerous.
+		return feedItem(AssemblyItem(Instruction::POP), _copyItem);
+	}
 	else if (_item.type() != Operation)
 	{
 		assertThrow(_item.deposit() == 1, InvalidDeposit, "");

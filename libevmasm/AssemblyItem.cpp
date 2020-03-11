@@ -82,6 +82,8 @@ unsigned AssemblyItem::bytesRequired(unsigned _addressLength) const
 		return 1 + 20;
 	case PushImmutableVariable:
 		return 1 + 32;
+	case AssignImmutableVariable:
+		return -1u; // No upper bound possible, so maximum valus. TODO: check if this can cause overflows anywhere.
 	default:
 		break;
 	}
@@ -92,6 +94,8 @@ int AssemblyItem::arguments() const
 {
 	if (type() == Operation)
 		return instructionInfo(instruction()).args;
+	else if (type() == AssignImmutableVariable)
+		return 1;
 	else
 		return 0;
 }

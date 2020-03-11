@@ -336,8 +336,13 @@ AssemblyItem Assembly::newPushLibraryAddress(string const& _identifier)
 AssemblyItem Assembly::newPushImmutableVariable(string const& _identifier)
 {
 	h256 h(util::keccak256(_identifier));
-	m_immutableVariables[h] = _identifier;
 	return AssemblyItem{PushImmutableVariable, h};
+}
+
+AssemblyItem Assembly::newImmutableVariableAssignment(string const& _identifier)
+{
+	h256 h(util::keccak256(_identifier));
+	return AssemblyItem{AssignImmutableVariable, h};
 }
 
 Assembly& Assembly::optimise(bool _enable, EVMVersion _evmVersion, bool _isCreation, size_t _runs)
@@ -502,10 +507,14 @@ LinkerObject const& Assembly::assemble() const
 	// Otherwise ensure the object is actually clear.
 	assertThrow(m_assembledObject.linkReferences.empty(), AssemblyException, "Unexpected link references.");
 
+	map<u256, vector<size_t>> immutableOccurrences;
+
 	size_t subTagSize = 1;
 	for (auto const& sub: m_subs)
 	{
-		sub->assemble();
+		auto const& linkerObject = sub->assemble();
+		for (auto const& [hash, occurrences]: linkerObject.immutableOccurrences)
+			immutableOccurrences[hash] += std::move(occurrences);
 		for (size_t tagPos: sub->m_tagPositionsInBytecode)
 			if (tagPos != size_t(-1) && tagPos > subTagSize)
 				subTagSize = tagPos;
@@ -607,8 +616,20 @@ LinkerObject const& Assembly::assemble() const
 			break;
 		case PushImmutableVariable:
 			ret.bytecode.push_back(uint8_t(Instruction::PUSH32));
-			ret.immutableReferences[m_immutableVariables.at(i.data())].push_back(ret.bytecode.size());
+			ret.immutableOccurrences[i.data()].emplace_back(ret.bytecode.size());
 			ret.bytecode.resize(ret.bytecode.size() + 32);
+			break;
+		case AssignImmutableVariable:
+			for (auto const& offset: immutableOccurrences[i.data()])
+			{
+				ret.bytecode.push_back(uint8_t(Instruction::DUP1));
+				// TODO: should we make use of the constant optimizer methods for pushing the offsets?
+				bytes offsetBytes = toCompactBigEndian(u256(offset));
+				ret.bytecode.push_back(uint8_t(Instruction::PUSH1) - 1 + offsetBytes.size());
+				ret.bytecode += offsetBytes;
+				ret.bytecode.push_back(uint8_t(Instruction::MSTORE));
+			}
+			ret.bytecode.push_back(uint8_t(Instruction::POP));
 			break;
 		case PushDeployTimeAddress:
 			ret.bytecode.push_back(uint8_t(Instruction::PUSH20));

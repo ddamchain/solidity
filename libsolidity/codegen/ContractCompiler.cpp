@@ -188,36 +188,20 @@ size_t ContractCompiler::packIntoContractCreator(ContractDefinition const& _cont
 
 	ContractType contractType(_contract);
 	auto const& immutables = contractType.immutableVariables();
-	u256 codeMemoryStart = immutables.empty() ? 0 : (u256(CompilerUtils::generalPurposeMemoryStart) + m_context.reservedMemory());
-
-	m_context.pushSubroutineSize(m_context.runtimeSub());
-	m_context << Instruction::DUP1;
-	m_context.pushSubroutineOffset(m_context.runtimeSub());
-	m_context << u256(codeMemoryStart) << Instruction::CODECOPY;
-	for (auto const& [immutableName, occurrences]:
-		// TODO: is it ok to access the assembled runtime object here like this?
-		//  I might have seen this causing different bytecode in tests for some reason, so need to recheck.
-		m_context.assembledRuntimeObject(m_context.runtimeSub()).immutableReferences
-	)
+	// Push all immutable values on the stack.
+	for (auto const& immutable: immutables)
 	{
-		// TODO: we need a better way for this.
-		auto it = std::find_if(immutables.begin(), immutables.end(), [&, immutableName = immutableName](auto const* var) {
-			return (var->annotation().contract->fullyQualifiedName() + "." + var->name()) == immutableName;
-		});
-		solAssert(it != immutables.end(), "");
-		u256 offset = m_context.immutableMemoryOffset(**it);
-		m_context << offset;
+		m_context << m_context.immutableMemoryOffset(*immutable);
 		m_context << Instruction::MLOAD;
-		for (auto const& occurrence: occurrences)
-		{
-			m_context << Instruction::DUP1;
-			m_context << (occurrence + codeMemoryStart);
-			m_context << Instruction::MSTORE;
-		}
-		m_context << Instruction::POP;
-
 	}
-	m_context << u256(codeMemoryStart) << Instruction::RETURN;
+	m_context.pushSubroutineSize(m_context.runtimeSub());
+	m_context.pushSubroutineOffset(m_context.runtimeSub());
+	m_context << u256(0) << Instruction::CODECOPY;
+	// Assign immutable values from stack in reversed order.
+	for (auto const& immutable: immutables | boost::adaptors::reversed)
+		m_context.appendImmutableVariableAssignment(immutable->annotation().contract->fullyQualifiedName() + "." + immutable->name());
+	m_context.pushSubroutineSize(m_context.runtimeSub());
+	m_context << u256(0) << Instruction::RETURN;
 
 	return m_context.runtimeSub();
 }
