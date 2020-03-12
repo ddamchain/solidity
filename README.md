@@ -1,4 +1,4 @@
-DDAM technical team is adopting solidity as the smart contract developing language.
+DDAM technical team is adopting solidity as the smart contract developing language of DDAM chain.
 
 # The Solidity Contract-Oriented Programming Language
 You can talk to us on [![solidity at https://gitter.im/ethereum/solidity](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ethereum/solidity?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge). Questions, feedback and suggestions are welcome!
