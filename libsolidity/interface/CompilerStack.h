@@ -109,7 +109,7 @@ public:
 
 	/// Sets library addresses. Addresses are cleared iff @a _libraries is missing.
 	/// Will not take effect before running compile.
-	void setLibraries(std::map<std::string, h160> const& _libraries = std::map<std::string, h160>{})
+	void setLibraries(std::map<std::string, h256> const& _libraries = std::map<std::string, h256>{})
 	{
 		m_libraries = _libraries;
 	}
@@ -320,7 +320,7 @@ private:
 	unsigned m_optimizeRuns = 200;
 	EVMVersion m_evmVersion;
 	std::set<std::string> m_requestedContractNames;
-	std::map<std::string, h160> m_libraries;
+	std::map<std::string, h256> m_libraries;
 	/// list of path prefix remappings, e.g. mylibrary: github.com/ethereum = /usr/local/ethereum
 	/// "context:prefix=target"
 	std::vector<Remapping> m_remappings;

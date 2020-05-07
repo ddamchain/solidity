@@ -703,7 +703,7 @@ public:
 		solAssert(!isSuper(), "");
 		return encodingType()->calldataEncodedSize(_padded);
 	}
-	virtual unsigned storageBytes() const override { solAssert(!isSuper(), ""); return 20; }
+	virtual unsigned storageBytes() const override { solAssert(!isSuper(), ""); return 32; }
 	virtual bool canLiveOutsideStorage() const override { return !isSuper(); }
 	virtual unsigned sizeOnStack() const override { return m_super ? 0 : 1; }
 	virtual bool isValueType() const override { return !isSuper(); }
@@ -715,7 +715,7 @@ public:
 	{
 		if (isSuper())
 			return TypePointer{};
-		return std::make_shared<IntegerType>(160, IntegerType::Modifier::Address);
+		return std::make_shared<IntegerType>(256, IntegerType::Modifier::Address);
 	}
 	virtual TypePointer interfaceType(bool _inLibrary) const override
 	{

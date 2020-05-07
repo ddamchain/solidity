@@ -281,19 +281,19 @@ bool ExpressionCompiler::visit(TupleExpression const& _tuple)
 	if (_tuple.isInlineArray())
 	{
 		ArrayType const& arrayType = dynamic_cast<ArrayType const&>(*_tuple.annotation().type);
-		
+
 		solAssert(!arrayType.isDynamicallySized(), "Cannot create dynamically sized inline array.");
 		m_context << max(u256(32u), arrayType.memorySize());
 		utils().allocateMemory();
 		m_context << Instruction::DUP1;
-	
+
 		for (auto const& component: _tuple.components())
 		{
 			component->accept(*this);
 			utils().convertType(*component->annotation().type, *arrayType.baseType(), true);
-			utils().storeInMemoryDynamic(*arrayType.baseType(), true);				
+			utils().storeInMemoryDynamic(*arrayType.baseType(), true);
 		}
-		
+
 		m_context << Instruction::POP;
 	}
 	else
@@ -1215,7 +1215,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 						identifier = FunctionType(*function).externalIdentifier();
 					else
 						solAssert(false, "Contract member is neither variable nor function.");
-					utils().convertType(type, IntegerType(160, IntegerType::Modifier::Address), true);
+					utils().convertType(type, IntegerType(256, IntegerType::Modifier::Address), true);
 					m_context << identifier;
 				}
 				else
@@ -1232,7 +1232,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			{
 				utils().convertType(
 					*_memberAccess.expression().annotation().type,
-					IntegerType(160, IntegerType::Modifier::Address),
+					IntegerType(256, IntegerType::Modifier::Address),
 					true
 				);
 				m_context << Instruction::BALANCE;
@@ -1240,7 +1240,7 @@ bool ExpressionCompiler::visit(MemberAccess const& _memberAccess)
 			else if ((set<string>{"send", "transfer", "call", "callcode", "delegatecall"}).count(member))
 				utils().convertType(
 					*_memberAccess.expression().annotation().type,
-					IntegerType(160, IntegerType::Modifier::Address),
+					IntegerType(256, IntegerType::Modifier::Address),
 					true
 				);
 			else
@@ -1532,7 +1532,7 @@ void ExpressionCompiler::endVisit(Literal const& _literal)
 {
 	CompilerContext::LocationSetter locationSetter(m_context, _literal);
 	TypePointer type = _literal.annotation().type;
-	
+
 	switch (type->category())
 	{
 	case Type::Category::RationalNumber:

@@ -33,12 +33,12 @@ void LinkerObject::append(LinkerObject const& _other)
 	bytecode += _other.bytecode;
 }
 
-void LinkerObject::link(map<string, h160> const& _libraryAddresses)
+void LinkerObject::link(map<string, h256> const& _libraryAddresses)
 {
 	std::map<size_t, std::string> remainingRefs;
 	for (auto const& linkRef: linkReferences)
-		if (h160 const* address = matchLibrary(linkRef.second, _libraryAddresses))
-			copy(address->data(), address->data() + 20, bytecode.begin() + linkRef.first);
+		if (h256 const* address = matchLibrary(linkRef.second, _libraryAddresses))
+			copy(address->data(), address->data() + 32, bytecode.begin() + linkRef.first);
 		else
 			remainingRefs.insert(linkRef);
 	linkReferences.swap(remainingRefs);
@@ -51,17 +51,17 @@ string LinkerObject::toHex() const
 	{
 		size_t pos = ref.first * 2;
 		string const& name = ref.second;
-		hex[pos] = hex[pos + 1] = hex[pos + 38] = hex[pos + 39] = '_';
-		for (size_t i = 0; i < 36; ++i)
+		hex[pos] = hex[pos + 1] = hex[pos + 62] = hex[pos + 63] = '_';
+		for (size_t i = 0; i < 60; ++i)
 			hex[pos + 2 + i] = i < name.size() ? name[i] : '_';
 	}
 	return hex;
 }
 
-h160 const*
+h256 const*
 LinkerObject::matchLibrary(
 	string const& _linkRefName,
-	map<string, h160> const& _libraryAddresses
+	map<string, h256> const& _libraryAddresses
 )
 {
 	auto it = _libraryAddresses.find(_linkRefName);

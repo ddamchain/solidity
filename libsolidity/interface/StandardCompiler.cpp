@@ -205,7 +205,7 @@ Json::Value formatLinkReferences(std::map<size_t, std::string> const& linkRefere
 
 		Json::Value entry = Json::objectValue;
 		entry["start"] = Json::UInt(ref.first);
-		entry["length"] = 20;
+		entry["length"] = 32;
 
 		libraryArray.append(entry);
 		fileObject[name] = libraryArray;
@@ -336,7 +336,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 	unsigned const optimizeRuns = optimizerSettings.get("runs", Json::Value(200u)).asUInt();
 	m_compilerStack.setOptimiserSettings(optimize, optimizeRuns);
 
-	map<string, h160> libraries;
+	map<string, h256> libraries;
 	Json::Value jsonLibraries = settings.get("libraries", Json::Value(Json::objectValue));
 	if (!jsonLibraries.isObject())
 		return formatFatalError("JSONError", "\"libraries\" is not a JSON object.");
@@ -355,7 +355,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 					"Library address is not prefixed with \"0x\"."
 				);
 
-			if (address.length() != 42)
+			if (address.length() != 66)
 				return formatFatalError(
 					"JSONError",
 					"Library address is of invalid length."
@@ -364,7 +364,7 @@ Json::Value StandardCompiler::compileInternal(Json::Value const& _input)
 			try
 			{
 				// @TODO use libraries only for the given source
-				libraries[library] = h160(address);
+				libraries[library] = h256(address);
 			}
 			catch (dev::BadHexCharacter const&)
 			{

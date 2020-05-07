@@ -100,7 +100,7 @@ private:
 	/// list of allowed directories to read files from
 	std::vector<boost::filesystem::path> m_allowedDirectories;
 	/// map of library names to addresses
-	std::map<std::string, h160> m_libraries;
+	std::map<std::string, h256> m_libraries;
 	/// Solidity compiler stack
 	std::unique_ptr<dev::solidity::CompilerStack> m_compiler;
 	/// EVM version to use
