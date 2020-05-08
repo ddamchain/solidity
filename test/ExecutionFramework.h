@@ -39,7 +39,7 @@ namespace test
 	using rational = boost::rational<dev::bigint>;
 	/// An Ethereum address: 20 bytes.
 	/// @NOTE This is not endian-specific; it's just a bunch of bytes.
-	using Address = h160;
+	using Address = h256;
 
 	// The various denominations; here for ease of use where needed within code.
 	static const u256 wei = 1;

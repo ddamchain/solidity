@@ -182,7 +182,7 @@ static char const* erc20Code = R"DELIMITER(
 
   (def 'is-address (addr)
     (when
-      (shr addr 160)
+      (shr addr 256)
       (revert)))
 
   ;; --------------------------------------------------------------------------

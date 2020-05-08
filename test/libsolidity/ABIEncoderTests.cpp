@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(value_types)
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
 		REQUIRE_LOG_DATA(encodeArgs(
-			10, u256(65534), u256(0x121212), u256(-1), string("\x1b\xab\xab"), true, u160(u256(-5))
+			10, u256(65534), u256(0x121212), u256(-1), string("\x1b\xab\xab"), true, u256(-5)
 		));
 	)
 }
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(storage_array)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(u160(-1), u160(-2), u160(-3)));
+		REQUIRE_LOG_DATA(encodeArgs(u256(-1), u256(-2), u256(-3)));
 	)
 }
 
@@ -289,50 +289,50 @@ BOOST_AUTO_TEST_CASE(storage_array_dyn)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode);
 		callContractFunction("f()");
-		REQUIRE_LOG_DATA(encodeArgs(0x20, 3, u160(1), u160(2), u160(3)));
+		REQUIRE_LOG_DATA(encodeArgs(0x20, 3, u256(1), u256(2), u256(3)));
 	)
 }
 
-BOOST_AUTO_TEST_CASE(external_function)
-{
-	string sourceCode = R"(
-		contract C {
-			event E(function(uint) external returns (uint), function(uint) external returns (uint));
-			function(uint) external returns (uint) g;
-			function f(uint) public returns (uint) {
-				g = this.f;
-				E(this.f, g);
-			}
-		}
-	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f(uint256)", u256(0));
-		string functionIdF = asString(m_contractAddress.ref()) + asString(FixedHash<4>(dev::keccak256("f(uint256)")).ref());
-		REQUIRE_LOG_DATA(encodeArgs(functionIdF, functionIdF));
-	)
-}
+// BOOST_AUTO_TEST_CASE(external_function)
+// {
+// 	string sourceCode = R"(
+// 		contract C {
+// 			event E(function(uint) external returns (uint), function(uint) external returns (uint));
+// 			function(uint) external returns (uint) g;
+// 			function f(uint) public returns (uint) {
+// 				g = this.f;
+// 				E(this.f, g);
+// 			}
+// 		}
+// 	)";
+// 	BOTH_ENCODERS(
+// 		compileAndRun(sourceCode);
+// 		callContractFunction("f(uint256)", u256(0));
+// 		string functionIdF = asString(m_contractAddress.ref()) + asString(FixedHash<4>(dev::keccak256("f(uint256)")).ref());
+// 		REQUIRE_LOG_DATA(encodeArgs(functionIdF, functionIdF));
+// 	)
+// }
 
-BOOST_AUTO_TEST_CASE(external_function_cleanup)
-{
-	string sourceCode = R"(
-		contract C {
-			event E(function(uint) external returns (uint), function(uint) external returns (uint));
-			// This test relies on the fact that g is stored in slot zero.
-			function(uint) external returns (uint) g;
-			function f(uint) public returns (uint) {
-				function(uint) external returns (uint)[1] memory h;
-				assembly { sstore(0, sub(0, 1)) mstore(h, sub(0, 1)) }
-				E(h[0], g);
-			}
-		}
-	)";
-	BOTH_ENCODERS(
-		compileAndRun(sourceCode);
-		callContractFunction("f(uint256)", u256(0));
-		REQUIRE_LOG_DATA(encodeArgs(string(24, char(-1)), string(24, char(-1))));
-	)
-}
+// BOOST_AUTO_TEST_CASE(external_function_cleanup)
+// {
+// 	string sourceCode = R"(
+// 		contract C {
+// 			event E(function(uint) external returns (uint), function(uint) external returns (uint));
+// 			// This test relies on the fact that g is stored in slot zero.
+// 			function(uint) external returns (uint) g;
+// 			function f(uint) public returns (uint) {
+// 				function(uint) external returns (uint)[1] memory h;
+// 				assembly { sstore(0, sub(0, 1)) mstore(h, sub(0, 1)) }
+// 				E(h[0], g);
+// 			}
+// 		}
+// 	)";
+// 	BOTH_ENCODERS(
+// 		compileAndRun(sourceCode);
+// 		callContractFunction("f(uint256)", u256(0));
+// 		REQUIRE_LOG_DATA(encodeArgs(string(24, char(-1)), string(24, char(-1))));
+// 	)
+// }
 
 BOOST_AUTO_TEST_CASE(calldata)
 {
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(structs2)
 			0x40,
 			0x100,
 			// S s1[0]
-			u256(u160(m_contractAddress)),
+			u256(m_contractAddress),
 			0x40,
 			// T s1[0].t
 			1, // length

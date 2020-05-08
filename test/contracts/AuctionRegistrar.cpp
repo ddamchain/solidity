@@ -234,27 +234,27 @@ protected:
 		{
 			callString("reserve", _name);
 		}
-		u160 owner(string const& _name)
+		u256 owner(string const& _name)
 		{
 			return callStringReturnsAddress("owner", _name);
 		}
-		void setAddress(string const& _name, u160 const& _address, bool _primary)
+		void setAddress(string const& _name, u256 const& _address, bool _primary)
 		{
 			callStringAddressBool("setAddress", _name, _address, _primary);
 		}
-		u160 addr(string const& _name)
+		u256 addr(string const& _name)
 		{
 			return callStringReturnsAddress("addr", _name);
 		}
-		string name(u160 const& _addr)
+		string name(u256 const& _addr)
 		{
 			return callAddressReturnsString("name", _addr);
 		}
-		void setSubRegistrar(string const& _name, u160 const& _address)
+		void setSubRegistrar(string const& _name, u256 const& _address)
 		{
 			callStringAddress("setSubRegistrar", _name, _address);
 		}
-		u160 subRegistrar(string const& _name)
+		u256 subRegistrar(string const& _name)
 		{
 			return callStringReturnsAddress("subRegistrar", _name);
 		}
@@ -266,7 +266,7 @@ protected:
 		{
 			return callStringReturnsBytes32("content", _name);
 		}
-		void transfer(string const& _name, u160 const& _target)
+		void transfer(string const& _name, u256 const& _target)
 		{
 			return callStringAddress("transfer", _name, _target);
 		}
@@ -300,12 +300,12 @@ BOOST_AUTO_TEST_CASE(reserve)
 
 	// should not work
 	registrar.reserve("");
-	BOOST_CHECK_EQUAL(registrar.owner(""), u160(0));
+	BOOST_CHECK_EQUAL(registrar.owner(""), u256(0));
 
 	for (auto const& name: names)
 	{
 		registrar.reserve(name);
-		BOOST_CHECK_EQUAL(registrar.owner(name), u160(m_sender));
+		BOOST_CHECK_EQUAL(registrar.owner(name), u256(m_sender));
 	}
 }
 
@@ -343,9 +343,9 @@ BOOST_AUTO_TEST_CASE(properties)
 		registrar.reserve(name);
 		BOOST_CHECK_EQUAL(registrar.owner(name), sender);
 		registrar.setAddress(name, addr, true);
-		BOOST_CHECK_EQUAL(registrar.addr(name), u160(addr));
+		BOOST_CHECK_EQUAL(registrar.addr(name), u256(addr));
 		registrar.setSubRegistrar(name, addr + 20);
-		BOOST_CHECK_EQUAL(registrar.subRegistrar(name), u160(addr + 20));
+		BOOST_CHECK_EQUAL(registrar.subRegistrar(name), u256(addr + 20));
 		registrar.setContent(name, h256(u256(addr + 90)));
 		BOOST_CHECK_EQUAL(registrar.content(name), h256(u256(addr + 90)));
 
@@ -353,9 +353,9 @@ BOOST_AUTO_TEST_CASE(properties)
 		m_sender = account(count - 1);
 		BOOST_CHECK_EQUAL(registrar.owner(name), sender);
 		registrar.setAddress(name, addr + 1, true);
-		BOOST_CHECK_EQUAL(registrar.addr(name), u160(addr));
+		BOOST_CHECK_EQUAL(registrar.addr(name), u256(addr));
 		registrar.setSubRegistrar(name, addr + 20 + 1);
-		BOOST_CHECK_EQUAL(registrar.subRegistrar(name), u160(addr + 20));
+		BOOST_CHECK_EQUAL(registrar.subRegistrar(name), u256(addr + 20));
 		registrar.setContent(name, h256(u256(addr + 90 + 1)));
 		BOOST_CHECK_EQUAL(registrar.content(name), h256(u256(addr + 90)));
 		count++;
@@ -369,8 +369,8 @@ BOOST_AUTO_TEST_CASE(transfer)
 	RegistrarInterface registrar(*this);
 	registrar.reserve(name);
 	registrar.setContent(name, h256(u256(123)));
-	registrar.transfer(name, u160(555));
-	BOOST_CHECK_EQUAL(registrar.owner(name), u160(555));
+	registrar.transfer(name, u256(555));
+	BOOST_CHECK_EQUAL(registrar.owner(name), u256(555));
 	BOOST_CHECK_EQUAL(registrar.content(name), h256(u256(123)));
 }
 
@@ -382,9 +382,9 @@ BOOST_AUTO_TEST_CASE(disown)
 	RegistrarInterface registrar(*this);
 	registrar.reserve(name);
 	registrar.setContent(name, h256(u256(123)));
-	registrar.setAddress(name, u160(124), true);
-	registrar.setSubRegistrar(name, u160(125));
-	BOOST_CHECK_EQUAL(registrar.name(u160(124)), name);
+	registrar.setAddress(name, u256(124), true);
+	registrar.setSubRegistrar(name, u256(125));
+	BOOST_CHECK_EQUAL(registrar.name(u256(124)), name);
 
 	// someone else tries disowning
 	sendEther(account(1), u256(10) * ether);
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(disown)
 	BOOST_CHECK_EQUAL(registrar.addr(name), 0);
 	BOOST_CHECK_EQUAL(registrar.subRegistrar(name), 0);
 	BOOST_CHECK_EQUAL(registrar.content(name), h256());
-	BOOST_CHECK_EQUAL(registrar.name(u160(124)), "");
+	BOOST_CHECK_EQUAL(registrar.name(u256(124)), "");
 }
 
 BOOST_AUTO_TEST_CASE(auction_simple)

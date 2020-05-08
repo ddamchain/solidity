@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(value_types)
 		compileAndRun(sourceCode);
 		ABI_CHECK(callContractFunction(
 			"f(uint256,uint16,uint24,int24,bytes3,bool,address)",
-			1, 2, 3, 4, string("abc"), true, u160(m_contractAddress)
+			1, 2, 3, 4, string("abc"), true, u256(m_contractAddress)
 		), encodeArgs(u256(20)));
 	)
 }
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(cleanup)
 				"f(uint16,int16,address,bytes3,bool)",
 				u256(0xffffff), u256(0x1ffff), u256(-1), string("abcd"), u256(4)
 			),
-			encodeArgs(u256(0xffff), u256(-1), (u256(1) << 160) - 1, string("abc"), true)
+			encodeArgs(u256(0xffff), u256(-1), (u256(1) << 256) - 1, string("abc"), true)
 		);
 	)
 }
@@ -695,8 +695,8 @@ BOOST_AUTO_TEST_CASE(mediocre_struct)
 		compileAndRun(sourceCode, 0, "C");
 		string sig = "f(uint256,(address)[2],uint256)";
 		ABI_CHECK(callContractFunction(sig,
-			7, u256(u160(m_contractAddress)), 0, 8
-		), encodeArgs(7, u256(u160(m_contractAddress)), 8));
+			7, u256(m_contractAddress), 0, 8
+		), encodeArgs(7, u256(m_contractAddress), 8));
 	)
 }
 
@@ -718,11 +718,11 @@ BOOST_AUTO_TEST_CASE(mediocre2_struct)
 		ABI_CHECK(callContractFunction(sig,
 			7, 0x60, 8,
 			0x40, 7 * 0x20,
-			u256(u160(m_contractAddress)), 0x40,
+			u256(m_contractAddress), 0x40,
 			2, 0x11, 0x12,
 			0x99, 0x40,
 			4, 0x31, 0x32, 0x34, 0x35
-		), encodeArgs(7, u256(u160(m_contractAddress)), 8));
+		), encodeArgs(7, u256(m_contractAddress), 8));
 	)
 }
 
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(complex_struct)
 			0x40,
 			0x100,
 			// S s1[0]
-			u256(u160(m_contractAddress)),
+			u256(m_contractAddress),
 			0x40,
 			// T s1[0].t
 			1, // length
@@ -778,7 +778,7 @@ BOOST_AUTO_TEST_CASE(complex_struct)
 			0x21, 2, 0x22,
 			0, 0, 0
 		);
-		ABI_CHECK(callContractFunction(sig, args), encodeArgs(7, u256(u160(m_contractAddress)), 8, 2, 0x1234, 3, 2, 0x22));
+		ABI_CHECK(callContractFunction(sig, args), encodeArgs(7, u256(m_contractAddress), 8, 2, 0x1234, 3, 2, 0x22));
 		// invalid enum value
 		args.data()[0x20 * 28] = 3;
 		ABI_CHECK(callContractFunction(sig, args), encodeArgs());
