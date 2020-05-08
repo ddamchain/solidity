@@ -11326,7 +11326,7 @@ BOOST_AUTO_TEST_CASE(interface_contract)
 		}
 	)";
 	compileAndRun(sourceCode, 0, "A");
-	u160 const recipient = m_contractAddress;
+	u256 const recipient = u256(m_contractAddress);
 	compileAndRun(sourceCode, 0, "C");
 	ABI_CHECK(callContractFunction("f(address)", recipient), encodeArgs(true));
 }
