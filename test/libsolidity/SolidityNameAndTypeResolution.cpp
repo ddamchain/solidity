@@ -5427,7 +5427,7 @@ BOOST_AUTO_TEST_CASE(address_checksum_type_deduction)
 	char const* text = R"(
 		contract C {
 			function f() public {
-				var x = 0xfA0bFc97E48458494Ccd857e1A85DC91F7F0046E;
+				var x = 0x100000000000000000000000fA0bFc97E48458494Ccd857e1A85DC91F7F0046E;
 				x.send(2);
 			}
 		}

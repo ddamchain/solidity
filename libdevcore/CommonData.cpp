@@ -76,16 +76,14 @@ bytes dev::fromHex(std::string const& _s, WhenError _throw)
 
 bool dev::passesAddressChecksum(string const& _str, bool _strict)
 {
-	return true;
+	string s = _str.substr(0, 2) == "0x" || _str.substr(0, 2) == "DD" ? _str.substr(2) : _str;
 
-	string s = _str.substr(0, 2) == "0x" ? _str.substr(2) : _str;
-
-	if (s.length() != 40)
+	if (s.length() != 64)
 		return false;
 
 	if (!_strict && (
-		_str.find_first_of("abcdef") == string::npos ||
-		_str.find_first_of("ABCDEF") == string::npos
+		s.find_first_of("abcdef") == string::npos ||
+		s.find_first_of("ABCDEF") == string::npos
 	))
 		return true;
 
@@ -94,23 +92,10 @@ bool dev::passesAddressChecksum(string const& _str, bool _strict)
 
 string dev::getChecksummedAddress(string const& _addr)
 {
-	string s = _addr.substr(0, 2) == "0x" ? _addr.substr(2) : _addr;
-	return s;
+	string s = _addr.substr(0, 2) == "0x" || _addr.substr(0, 2) == "DD" ? _addr.substr(2) : _addr;
 
-	assertThrow(s.length() == 40, InvalidAddress, "");
+	assertThrow(s.length() == 64, InvalidAddress, "");
 	assertThrow(s.find_first_not_of("0123456789abcdefABCDEF") == string::npos, InvalidAddress, "");
 
-	h256 hash = keccak256(boost::algorithm::to_lower_copy(s, std::locale::classic()));
-
-	string ret = "0x";
-	for (size_t i = 0; i < 40; ++i)
-	{
-		char addressCharacter = s[i];
-		unsigned nibble = (unsigned(hash[i / 2]) >> (4 * (1 - (i % 2)))) & 0xf;
-		if (nibble >= 8)
-			ret += toupper(addressCharacter);
-		else
-			ret += tolower(addressCharacter);
-	}
-	return ret;
+	return _addr;
 }
